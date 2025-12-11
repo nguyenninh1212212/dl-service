@@ -1,0 +1,89 @@
+# ========================
+# 1. Thư mục và File được tạo tự động bởi Python
+# ========================
+
+# Bytecode files (file mã byte)
+*.pyc
+__pycache__/
+venv/  # Môi trường ảo mặc định (virtual environment)
+
+# Thư mục được tạo khi chạy các module
+*/__pycache__
+
+# Thư mục chứa các bản build/phân phối
+build/
+dist/
+*.egg-info
+.eggs/
+
+# ========================
+# 2. Môi trường Ảo (Virtual Environments)
+# ========================
+
+# Các tên phổ biến của môi trường ảo.
+# Giữ venv/ và env/ nếu bạn đặt môi trường ảo ở thư mục gốc.
+# Nếu bạn đặt môi trường ảo ở nơi khác, hãy thêm tên thư mục đó vào đây.
+venv/
+env/
+.venv/
+.env/
+
+# ========================
+# 3. Thư viện và Công cụ Python
+# ========================
+
+# Các thư viện/công cụ quản lý dependencies
+pip-log.txt
+pip-delete-this-file.txt
+pip-selfcheck.json
+.pip-cache/
+
+# Thư viện Anaconda
+# Anaconda/Miniconda environment
+# !! Vẫn giữ environment.yml nếu bạn dùng conda để quản lý dependencies !!
+.ipynb_checkpoints
+.conda-lock/
+
+# ========================
+# 4. Kiểm thử và Linter
+# ========================
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mypy
+.mypy_cache/
+
+# ========================
+# 5. Cấu hình IDE / Editor
+# ========================
+
+# Thư mục và file của VS Code
+.vscode/
+
+# Thư mục và file của PyCharm/IntelliJ (thường là folder chứa cấu hình, không phải code)
+.idea/
+
+# Thư mục và file của Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ========================
+# 6. Biến Môi trường và Bảo mật
+# ========================
+
+# Biến môi trường cục bộ (Chứa mật khẩu, API keys, v.v.)
+# KHÔNG BAO GIỜ push file .env lên Git!
+.env
+.flaskenv
+*.sqlite3 # File database cục bộ (ví dụ: SQLite)
+
+# ========================
+# 7. Hệ điều hành và macOS
+# ========================
+
+.DS_Store # File của macOS
+.Trashes
+Thumbs.db # File của Windows

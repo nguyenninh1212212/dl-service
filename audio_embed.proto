@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package audioembed;
+
+message EmbedRequest {
+  string songId = 1;
+  string audioUrl = 2; // URL để Python download audio
+}
+
+message EmbedResponse {
+  string songId = 1;
+  repeated float embedding = 2;
+}
+
+service AudioEmbed {
+  rpc Embed(EmbedRequest) returns (EmbedResponse);
+}

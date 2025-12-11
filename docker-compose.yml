@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  dl-service:
+    build: .
+    container_name: dl-service
+    restart: always
+    ports:
+      - "50053:50053"
+    environment:
+      - MONGO_URI=mongodb://root:123456@mongo:27017/ai_music?authSource=admin
+    networks:
+      - nnkb
+
+networks:
+  nnkb:
+    external: true
+
