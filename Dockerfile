@@ -25,8 +25,9 @@ COPY requirements.txt .
 # 6️⃣ Upgrade pip + install packages + handle blinker conflict
 # Loại bỏ lệnh riêng cho protobuf>=6.0.0. Để requirements.txt quyết định phiên bản.
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir python-dotenv \
-    && pip install --no-cache-dir --ignore-installed -r requirements.txt
+    && pip install --no-cache-dir "numpy==1.24.3" \
+    && pip install --no-cache-dir -r requirements.txt
+
 # Thêm --ignore-installed để vượt qua lỗi blinker
 
 # 7️⃣ Copy Python code vào container
