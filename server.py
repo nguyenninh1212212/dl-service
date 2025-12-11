@@ -107,7 +107,7 @@ def run_flask_app():
     """Chạy Flask trên cùng cổng nhưng trên một thread riêng."""
     # Host trên 0.0.0.0 và cổng của Render. debug=False là quan trọng trong production.
     print(f"Flask HTTP health check running on {GRPC_ADDRESS}")
-    app.run(host='0.0.0.0', port=int(8002), debug=False)
+    app.run(host='0.0.0.0', port=int(RENDER_PORT), debug=False)
 
 
 # ====================================================================
