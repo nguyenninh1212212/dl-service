@@ -30,7 +30,12 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Thêm --ignore-installed để vượt qua lỗi blinker
 
 # 7️⃣ Copy Python code vào container
-COPY server.py audio_embedding.py audio_embed_pb2*.py ./
+# KHÔNG COPY file audio_embed_pb2*.py đã compile sẵn
+COPY audio_embed.proto /app/
+COPY server.py audio_embedding.py ./
+
+# 8️⃣ Biên dịch Protobuf bên trong Docker (để đảm bảo tính nhất quán phiên bản)
+RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. audio_embed.proto
 
 # 8️⃣ Expose gRPC port
 EXPOSE 50053
