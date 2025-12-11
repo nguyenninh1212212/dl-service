@@ -26,7 +26,7 @@ COPY requirements.txt .
 # Loại bỏ lệnh riêng cho protobuf>=6.0.0. Để requirements.txt quyết định phiên bản.
 RUN pip install --no-cache-dir --upgrade pip --break-system-packages \
     && pip install --no-cache-dir "numpy==1.24.3" --break-system-packages \
-    && pip install --no-cache-dir -r requirements.txt --break-system-packages
+    && pip install --no-cache-dir -r requirements.txt --break-system-packages --ignore-installed blinker
 
 
 # Thêm --ignore-installed để vượt qua lỗi blinker
