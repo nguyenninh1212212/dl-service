@@ -9,3 +9,4 @@ validators>=0.22.0
 pymongo>=4.3.0
 protobuf==6.33.1
 python-dotenv>=1.0.0
+flask

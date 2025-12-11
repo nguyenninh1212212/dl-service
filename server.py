@@ -10,13 +10,26 @@ from audio_embedding import create_embedding
 from pymongo import MongoClient
 from functools import lru_cache
 from dotenv import load_dotenv
+from threading import Thread
+from flask import Flask, jsonify # <-- THÊM THƯ VIỆN FLASK
 
 load_dotenv()
 
-# MongoDB   
+# Lấy cổng từ biến môi trường của Render, mặc định 50053 cho local test
+RENDER_PORT = os.getenv("PORT", "50053") 
+GRPC_ADDRESS = f"0.0.0.0:{RENDER_PORT}"
+
+# ====================================================================
+# I. KHỞI TẠO DỊCH VỤ PHỤ TRỢ (MongoDB, Cache, Logic gRPC)
+# ====================================================================
+
+# MongoDB   
 mongo = MongoClient(os.getenv("MONGO_URI"))
 db = mongo["ai_music"]
 emb_col = db["songembeddings"]
+
+# (Các hàm validate_audio_url, cached_download, AudioEmbedServicer giữ nguyên)
+# ... (Phần code này được lược bỏ để giữ ngắn gọn)
 
 # ---- Validate URL ----
 def validate_audio_url(url):
@@ -47,7 +60,7 @@ def cached_download(url):
                 tmp.write(chunk)
 
         tmp.flush()
-        return tmp.name   # trả về path file tạm
+        return tmp.name 
 
 class AudioEmbedServicer(audio_embed_pb2_grpc.AudioEmbedServicer):
     def Embed(self, request, context):
@@ -78,16 +91,50 @@ class AudioEmbedServicer(audio_embed_pb2_grpc.AudioEmbedServicer):
         )
 
 
+# ====================================================================
+# II. DỊCH VỤ HTTP FLASK (HEALTH CHECK)
+# ====================================================================
+
+app = Flask(__name__)
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Endpoint này được Render sử dụng để kiểm tra cổng có mở không."""
+    # Bạn có thể thêm logic kiểm tra DB/gRPC ở đây nếu cần
+    return jsonify({"status": "healthy", "service": "gRPC AudioEmbed"}), 200
+
+def run_flask_app():
+    """Chạy Flask trên cùng cổng nhưng trên một thread riêng."""
+    # Host trên 0.0.0.0 và cổng của Render. debug=False là quan trọng trong production.
+    print(f"Flask HTTP health check running on {GRPC_ADDRESS}")
+    app.run(host='0.0.0.0', port=int(RENDER_PORT), debug=False)
+
+
+# ====================================================================
+# III. KHỞI TẠO CÁC DỊCH VỤ CÙNG LÚC
+# ====================================================================
+
 def serve():
+    # 1. Khởi tạo gRPC Server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
     audio_embed_pb2_grpc.add_AudioEmbedServicer_to_server(
         AudioEmbedServicer(),
         server,
     )
 
-    server.add_insecure_port("0.0.0.0:50053")
-    print("Python AudioEmbed gRPC server running at :50053")
+    # Lắng nghe gRPC trên cổng của Render
+    server.add_insecure_port(GRPC_ADDRESS)
+    print(f"Python AudioEmbed gRPC server running at {GRPC_ADDRESS}")
     server.start()
+    
+    # 2. Chạy Flask HTTP Server trên một thread riêng biệt
+    # Flask và gRPC có thể chia sẻ cùng cổng vì chúng sử dụng các giao thức khác nhau (HTTP/1.1 vs HTTP/2)
+    # Tuy nhiên, an toàn nhất là chạy Flask trên một Thread riêng
+    flask_thread = Thread(target=run_flask_app)
+    flask_thread.daemon = True # Cho phép thread chính kết thúc thread này
+    flask_thread.start()
+
+    # 3. Giữ thread chính không kết thúc (cho gRPC)
     server.wait_for_termination()
 
 
