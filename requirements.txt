@@ -1,12 +1,19 @@
-grpcio>=1.56.0
-grpcio-tools>=1.56.0
-numpy>=1.26.0
+# KHẮC PHỤC: Xóa numpy khỏi file để sử dụng phiên bản gốc trong Base Image TF
+# (Bỏ dòng: numpy>=1.26.0)
+
+# KHẮC PHỤC: Hạ cấp protobuf để tương thích với TF 2.14.0 và grpcio
+protobuf==4.25.3 
+
+# Cố định grpcio để tương thích với protobuf 4.x.x
+grpcio==1.60.0
+grpcio-tools==1.60.0
+
+# Các dependencies khác giữ nguyên
 scikit-learn>=1.3.0
 librosa>=0.10.0
 soundfile>=0.12.1
 requests>=2.31.0
 validators>=0.22.0
 pymongo>=4.3.0
-protobuf==6.33.1
 python-dotenv>=1.0.0
 flask
