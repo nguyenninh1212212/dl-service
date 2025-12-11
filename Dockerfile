@@ -20,11 +20,14 @@ WORKDIR /app
 # 5️⃣ Copy requirements trước để tận dụng Docker cache
 COPY requirements.txt .
 
-# 6️⃣ Upgrade pip + install packages + upgrade protobuf + dotenv
+# ... (Dòng 1 đến 5 giữ nguyên)
+
+# 6️⃣ Upgrade pip + install packages + handle blinker conflict
+# Loại bỏ lệnh riêng cho protobuf>=6.0.0. Để requirements.txt quyết định phiên bản.
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir --upgrade protobuf>=6.0.0 \
     && pip install --no-cache-dir python-dotenv \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir --ignore-installed -r requirements.txt
+# Thêm --ignore-installed để vượt qua lỗi blinker
 
 # 7️⃣ Copy Python code vào container
 COPY server.py audio_embedding.py audio_embed_pb2*.py ./
