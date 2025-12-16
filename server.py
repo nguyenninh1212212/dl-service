@@ -11,7 +11,7 @@ from pymongo import MongoClient
 from functools import lru_cache
 from dotenv import load_dotenv
 from threading import Thread
-from flask import Flask, jsonify # <-- THÊM THƯ VIỆN FLASK
+# ĐÃ LOẠI BỎ: from flask import Flask, jsonify
 
 load_dotenv()
 
@@ -27,9 +27,6 @@ GRPC_ADDRESS = f"0.0.0.0:{RENDER_PORT}"
 mongo = MongoClient(os.getenv("MONGO_URI"))
 db = mongo["ai_music"]
 emb_col = db["songembeddings"]
-
-# (Các hàm validate_audio_url, cached_download, AudioEmbedServicer giữ nguyên)
-# ... (Phần code này được lược bỏ để giữ ngắn gọn)
 
 # ---- Validate URL ----
 def validate_audio_url(url):
@@ -95,20 +92,7 @@ class AudioEmbedServicer(audio_embed_pb2_grpc.AudioEmbedServicer):
 # II. DỊCH VỤ HTTP FLASK (HEALTH CHECK)
 # ====================================================================
 
-app = Flask(__name__)
-
-@app.route("/health", methods=["GET"])
-def health_check():
-    """Endpoint này được Render sử dụng để kiểm tra cổng có mở không."""
-    # Bạn có thể thêm logic kiểm tra DB/gRPC ở đây nếu cần
-    return jsonify({"status": "healthy", "service": "gRPC AudioEmbed"}), 200
-
-def run_flask_app():
-    """Chạy Flask trên cùng cổng nhưng trên một thread riêng."""
-    # Host trên 0.0.0.0 và cổng của Render. debug=False là quan trọng trong production.
-    print(f"Flask HTTP health check running on {GRPC_ADDRESS}")
-    app.run(host='0.0.0.0', port=int(RENDER_PORT), debug=False)
-
+# ĐÃ LOẠI BỎ CODE FLASK HEALTH CHECK
 
 # ====================================================================
 # III. KHỞI TẠO CÁC DỊCH VỤ CÙNG LÚC
@@ -127,13 +111,8 @@ def serve():
     print(f"Python AudioEmbed gRPC server running at {GRPC_ADDRESS}")
     server.start()
     
-    # 2. Chạy Flask HTTP Server trên một thread riêng biệt
-    # Flask và gRPC có thể chia sẻ cùng cổng vì chúng sử dụng các giao thức khác nhau (HTTP/1.1 vs HTTP/2)
-    # Tuy nhiên, an toàn nhất là chạy Flask trên một Thread riêng
-    flask_thread = Thread(target=run_flask_app)
-    flask_thread.daemon = True # Cho phép thread chính kết thúc thread này
-    flask_thread.start()
-
+    # 2. KHÔNG CHẠY FLASK/HTTP NỮA
+    
     # 3. Giữ thread chính không kết thúc (cho gRPC)
     server.wait_for_termination()
 
